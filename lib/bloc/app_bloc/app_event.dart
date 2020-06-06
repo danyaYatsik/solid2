@@ -1,0 +1,1 @@
+enum AppEvent { setImage1, setImage2, compare }
