@@ -1,4 +1,5 @@
 import 'package:image/image.dart';
+import 'package:solid/exception/comparison_exception.dart';
 import 'package:solid/model/comparison_result.dart';
 
 num _diffBetweenPixels(int firstPixel, int secondPixel) {
@@ -25,7 +26,7 @@ Future<ComparisonResult> compare(
     Image firstImg, Image secondImg, {num fluff = 0.1}) async {
 
   if (!_haveSameSize(firstImg, secondImg)) {
-    throw Exception('Currently we need images of same width and height');
+    throw ComparisonException('Currently we need images of same width and height');
   }
 
   int width = firstImg.width;

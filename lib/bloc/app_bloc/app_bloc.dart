@@ -7,6 +7,7 @@ import 'package:solid/bloc/app_bloc/app_state.dart';
 import 'package:solid/model/comparison_result.dart';
 import 'package:solid/util/comparison_util.dart';
 
+import '../../exception/comparison_exception.dart';
 import 'app_event.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
@@ -87,8 +88,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         final result = compute(_compareInBackground, [mState.image1, mState.image2]);
         result.then((result) {
           add(PresentResultAppEvent(result));
-        }).catchError((error) {
-          add(ErrorAppEvent(message: error.toString()));
+        }).catchError((ComparisonException exception) {
+          add(ErrorAppEvent(message: exception.message));
         });
         return ProcessingAppState(mState.image1, mState.image2);
       default:
