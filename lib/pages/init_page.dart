@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solid/bloc/app_bloc/app_bloc.dart';
 import 'package:solid/bloc/app_bloc/app_event.dart';
 import 'package:solid/bloc/app_bloc/app_state.dart';
+import 'package:solid/bloc/image_bloc/image_bloc.dart';
+import 'package:solid/bloc/image_bloc/image_event.dart';
 import 'package:solid/widget/image-container.dart';
 import 'package:solid/util/properties.dart';
 
@@ -11,48 +13,55 @@ class InitPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // ignore: close_sinks
     final AppBloc appBloc = context.bloc<AppBloc>();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(APP_NAME),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+
+    _createImageBloc(_) {
+      final bloc = ImageBloc();
+      appBloc.listen((state) {
+        if (state is ErrorAppState || state is InitialAppState)
+          bloc.add(EmptyImageEvent());
+      });
+      return bloc;
+    }
+
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(APP_NAME),
+        ),
+        body: Column(
           children: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                BlocBuilder<AppBloc, AppState>(
-                    condition: (previous, current) =>
-                        previous.image1 != current.image1,
-                    builder: (context, state) {
-                      return ImageContainer(
-                        image: state.image1,
-                        width: 120,
-                        height: 250,
-                        onPressed: () => appBloc.add(AppEvent.setImage1),
-                      );
-                    }),
-                BlocBuilder<AppBloc, AppState>(
-                    condition: (previous, current) =>
-                        previous.image2 != current.image2,
-                    builder: (context, state) {
-                      return ImageContainer(
-                        image: state.image2,
-                        width: 120,
-                        height: 250,
-                        onPressed: () => appBloc.add(AppEvent.setImage2),
-                      );
-                    }),
+                BlocProvider<ImageBloc>(
+                  create: _createImageBloc,
+                  child: ImageContainer(
+                    width: 120,
+                    height: 250,
+                    onImagePresent: (image) =>
+                        appBloc.add(SetImage1AppEvent(image)),
+                  ),
+                ),
+                BlocProvider<ImageBloc>(
+                  create: _createImageBloc,
+                  child: ImageContainer(
+                    width: 120,
+                    height: 250,
+                    onImagePresent: (image) =>
+                        appBloc.add(SetImage2AppEvent(image)),
+                  ),
+                ),
               ],
             ),
-            CircularProgressIndicator(),
             RaisedButton(
-                child: Text('Compare'),
-                onPressed: () {
-                  Navigator.pushNamed(context, "/result");
-                  appBloc.add(AppEvent.compare);
-                }),
+              child: Text('See result'),
+              onPressed: () {
+                Navigator.pushNamed(context, "/result");
+                if (appBloc.state is ReadyAppState) {
+                  appBloc.add(CompareAppEvent());
+                }
+              },
+            ),
           ],
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solid/bloc/app_bloc/app_bloc.dart';
 import 'package:solid/router.dart';
@@ -9,7 +10,11 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    return BlocProvider<AppBloc>(
       create: (_) => AppBloc(),
       child: MaterialApp(
         title: APP_NAME,

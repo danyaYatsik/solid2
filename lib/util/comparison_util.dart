@@ -25,7 +25,7 @@ Future<ComparisonResult> compare(
     Image firstImg, Image secondImg, {num fluff = 0.1}) async {
 
   if (!_haveSameSize(firstImg, secondImg)) {
-    throw UnsupportedError('Currently we need images of same width and height');
+    throw Exception('Currently we need images of same width and height');
   }
 
   int width = firstImg.width;
@@ -33,7 +33,7 @@ Future<ComparisonResult> compare(
 
   //Create an image to show the differences
   final diffImg = Image(width, height);
-  var diff = 0.0;
+  int matchedPixels = 0;
 
   for (var i = 0; i < width; i++) {
     var diffAtPixel, firstPixel, secondPixel;
@@ -42,8 +42,7 @@ Future<ComparisonResult> compare(
       secondPixel = secondImg.getPixel(i, j);
 
       diffAtPixel = _diffBetweenPixels(firstPixel, secondPixel);
-      diff += diffAtPixel;
-      print('$i : $j - $diffAtPixel');
+      if (diffAtPixel < fluff) matchedPixels++;
 
       //Shows in red the different pixels and in semitransparent the same ones
       diffImg.setPixel(
@@ -51,18 +50,14 @@ Future<ComparisonResult> compare(
     }
   }
 
-  diff /= height * width;
+  matchedPixels = (matchedPixels * 100 / height / width).floor();
 
-  diff *= 100;
-
-  return ComparisonResult(Future(() => diffImg), diff.toString());
+  return ComparisonResult(diffImg, matchedPixels);
 }
 
-///Check if [firstImg] and [secondImg] have the same width and height
 bool _haveSameSize(firstImg, secondImg) =>
     firstImg.width == secondImg.width && firstImg.height == secondImg.height;
 
-///Returns a red color only if two RGB pixels are different
 int _selectColor(int firstPixel, int secondPixel, num diffAtPixel, num fluff) {
   var fRed = getRed(firstPixel);
   var fGreen = getGreen(firstPixel);

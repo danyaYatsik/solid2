@@ -2,9 +2,9 @@ import 'package:image/image.dart';
 
 class ComparisonResult {
 
-  final Future<Image> image;
-  final String description;
+  final Image image;
+  final num percents;
 
-  ComparisonResult(this.image, this.description);
+  ComparisonResult(this.image, this.percents);
 
 }
